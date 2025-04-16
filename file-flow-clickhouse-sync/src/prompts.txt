@@ -1,0 +1,134 @@
+
+# Prompts Used to Create the Bidirectional ClickHouse & Flat File Ingestion Tool
+
+## Prompt 1: Initial Setup
+
+You are building a complete web-based tool: **Bidirectional ClickHouse & Flat File Ingestion Tool**.
+
+🔥 Tech Stack:
+- Backend: Python (FastAPI)
+- Frontend: HTML/CSS + JavaScript
+- Database: ClickHouse (local via Docker)
+- File: Local .csv (e.g., pp-monthly-update-new-version.csv)
+- Auth: JWT token for ClickHouse
+- Containerization: Docker
+
+📦 STEP 1: Project Structure (initialize this file tree)
+project-root/
+├── backend/
+│   ├── main.py
+│   ├── clickhouse_client.py
+│   ├── file_handler.py
+│   ├── schemas.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+├── data/
+│   └── (used to store uploaded and ingested files)
+├── docker-compose.yml
+└── README.md
+
+📂 STEP 2: Backend - Basic FastAPI App with File Upload
+- `/health`: return "OK"
+- `/upload-csv`: accepts CSV upload, saves in `data/`
+- `/csv-schema`: accepts filename, returns column list using Pandas
+- `/preview-csv`: returns first 100 rows
+
+Add error handling for empty or malformed files.
+
+📦 STEP 3: Docker Setup
+- Write `Dockerfile` to containerize FastAPI app.
+- Use `docker-compose.yml`:
+  - Service 1: FastAPI (port 8000)
+  - Service 2: ClickHouse (port 8123, HTTP)
+
+📦 STEP 4: requirements.txt
+
+⚙️ STEP 5: Setup CORS middleware for JS frontend.
+
+## Prompt 2: ClickHouse Integration and Frontend UI
+
+🎯 CONTINUING the same project...
+
+📦 STEP 6: ClickHouse Integration via FastAPI (in `clickhouse_client.py`)
+- `/clickhouse-connect`: accepts host, port, db, user, JWT token — test connection
+- `/clickhouse-tables`: returns list of tables in DB
+- `/clickhouse-schema`: returns column names for a given table
+- `/ingest-clickhouse-to-file`:
+   - Params: table name, columns
+   - Export those columns to CSV, save in `data/` folder
+- `/ingest-file-to-clickhouse`:
+   - Params: filename, selected columns, ClickHouse table name
+   - Ingest CSV file into ClickHouse table
+
+Use `clickhouse-connect` with JWT token authentication (pass via headers).
+
+📦 STEP 7: Add Record Count & Error Handling
+- All ingest routes should return:
+   ```json
+   { "status": "success", "records": 4582 }
+   ```
+   In case of failure:
+   ```json
+   { "status": "error", "message": "JWT token invalid" }
+   ```
+
+🖥️ STEP 8: Frontend UI (HTML + JS)
+- Source Selector (Flat File / ClickHouse)
+- If "Flat File":
+  - File Upload input (.csv)
+  - Delimiter input
+  - Button: "Upload"
+  - Button: "Fetch Schema"
+  - Checkbox list of columns
+  - Button: "Ingest to ClickHouse"
+- If "ClickHouse":
+  - Inputs: Host, Port, DB, User, JWT Token
+  - Button: "Connect"
+  - Dropdown: Tables
+  - Checkbox list of columns
+  - Button: "Ingest to File"
+- Use fetch to call backend endpoints.
+
+🖼️ STEP 9: Status Display
+- Add an HTML section:
+  - Status: Connecting / Uploading / Ingesting / Completed
+  - Message box with record count or error
+
+## Prompt 3: Advanced Features and Finalization
+
+🎯 FINAL PROMPT for complete project...
+
+✨ STEP 10: Bonus Feature - Preview
+- Add /preview-clickhouse: accepts table name & selected columns → return first 100 rows
+- Add preview for uploaded CSV (/preview-csv already built)
+- Show preview in <table> on frontend before ingestion
+
+✨ STEP 11: Bonus Feature - Multi-Table Join
+- Frontend:
+  - Allow selection of multiple ClickHouse tables
+  - Textbox: Enter JOIN conditions manually
+- Backend:
+  - /clickhouse-join-schema: accepts tables and join condition
+  - Build JOIN SQL query
+  - Return joined schema (column names)
+  - /ingest-joined-clickhouse-to-file: run join query, export to CSV
+
+✨ STEP 12: Final Touches
+- Add progress bar or spinner during ingestion
+- Add input validation (required fields)
+- Use friendly alerts for connection failures or schema mismatch
+
+📝 STEP 13: README.md
+- Instructions to build & run project:
+  - docker-compose up --build
+- FastAPI endpoints summary
+- How to test CSV and ClickHouse ingestion
+- Screenshots of working UI (optional)
+- Mention any AI tools used
+
+📁 STEP 14: prompts.txt
+- Save these 3 prompts in a prompts.txt file in root directory.
